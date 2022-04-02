@@ -3,7 +3,7 @@
 Nama : Bagas Prambudi 
 Nim : 2031710108
 Kelas : MI 2C 
-Prodi : D3-MI
+Prodi : D3-Manajemne Informatika
 
 ## Database_sqlite
 
