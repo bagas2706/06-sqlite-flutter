@@ -1,16 +1,8 @@
-# database_sqlite
+# PRAKTIKUM 06
 
-A new Flutter project.
+Nama : Bagas Prambudi \n Nim : 2031710108 \n Kelas : MI 2C \n Prodi : D3-MI
 
-## Getting Started
+## Database_sqlite
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![sebelum](img/sebelum.png)
+![sesudah](img/sesudah.png)

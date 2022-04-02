@@ -1,34 +1,37 @@
+// ignore_for_file: unnecessary_this
+
 class Item {
-  late int _id;
+  late int id;
+  late String _kodeBarang;
   late String _name;
   late int _price;
+  late int _stok;
 
-  int get id => _id;
+  Item(this._kodeBarang, this._name, this._price, this._stok);
 
-  get name => _name;
-
-  set name(value) => _name = value;
-
-  get price => _price;
-
-  set price(value) => _price = value;
-
-  // konstruktor versi 1
-  Item(this._name, this._price);
-
-  // konstruktor versi 2: konversi dari Map ke Item
-  Item.fromMap(Map<String, dynamic> map) {
-    _id = map['id'];
-    _name = map['name'];
-    _price = map['price'];
+  Item.map(dynamic obj) {
+    this._kodeBarang = obj['kode_barang'];
+    this._name = obj['name'];
+    this._price = obj['price'];
+    this._stok = obj['stok'];
   }
 
-  // konversi dari Item ke Map
+  String get kodeBarang => _kodeBarang;
+  String get name => _name;
+  int get price => _price;
+  int get stok => _stok;
+
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = <String, dynamic>{};
-    map['id'] = _id;
-    map['name'] = name;
-    map['price'] = price;
+    var map = <String, dynamic>{};
+
+    map['kode_barang'] = _kodeBarang;
+    map['name'] = _name;
+    map['price'] = _price;
+    map['stok'] = _stok;
     return map;
+  }
+
+  void setItemId(int id) {
+    this.id = id;
   }
 }

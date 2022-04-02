@@ -1,88 +1,83 @@
+// ignore_for_file: avoid_print
+
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'dart:io' as io;
 import 'package:database_sqlite/models/item.dart';
 
-class DbHelper {
-  static late DbHelper _dbHelper;
-  static late Database _database;
-  DbHelper._createObject();
-  Future<Database> initDb() async {
-    //untuk menentukan nama database dan lokasi yg dibuat
-    Directory directory = await getApplicationDocumentsDirectory();
-    String path = directory.path + 'bagas.db';
+class DBHelper {
+  static final DBHelper _instance = DBHelper.internal();
+  DBHelper.internal();
 
-    //create, read databases
-    var itemDatabase = openDatabase(path, version: 4, onCreate: _createDb);
+  factory DBHelper() => _instance;
 
-    //mengembalikan nilai object sebagai hasil dari fungsinya
-    return itemDatabase;
+  static Database? _db;
+
+  Future<Database?> get db async {
+    if (_db != null) {
+      return _db;
+    }
+    _db = await setDB();
+    return _db;
   }
 
-  //buat tabel baru dengan nama item
-  void _createDb(Database db, int version) async {
-    await db.execute('''
-    CREATE TABLE item (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
-      price INTEGER
-    )
-    ''');
+  setDB() async {
+    io.Directory directory = await getApplicationDocumentsDirectory();
+    String path = join(directory.path, 'bagas.db');
+    var db = await openDatabase(path, version: 1, onCreate: _onCreate);
+    return db;
   }
 
-//select databases
-  Future<List<Map<String, dynamic>>> select() async {
-    Database db = await initDb();
-    var mapList = await db.query('item', orderBy: 'name');
-    return mapList;
+  void _onCreate(Database db, int version) async {
+    await db.execute(
+      'CREATE TABLE item(id INTEGER PRIMARY KEY, kode_barang TEXT, name TEXT, price INTEGER, stok INTEGER)',
+    );
+    print('DB Created');
   }
 
-//create databases
-  Future<int> insert(Item object) async {
-    Database db = await initDb();
-    int count = await db.insert('item', object.toMap());
-    return count;
+  Future<int> saveItem(Item item) async {
+    var dbClient = await db;
+    int res = await dbClient!.insert('item', item.toMap());
+    print('Item saved');
+    return res;
   }
 
-//update databases
-  Future<int> update(Item object) async {
-    Database db = await initDb();
-    int count = await db
-        .update('item', object.toMap(), where: 'id=?', whereArgs: [object.id]);
-    return count;
-  }
-
-//delete databases
-  Future<int> delete(int id) async {
-    Database db = await initDb();
-    int count = await db.delete('item', where: 'id=?', whereArgs: [id]);
-    return count;
-  }
-
-  Future<List<Item>> getItemList() async {
-    var itemMapList = await select();
-    int count = itemMapList.length;
-    // ignore: deprecated_member_use
-    List<Item> itemList = <Item>[];
-    for (int i = 0; i < count; i++) {
-      itemList.add(Item.fromMap(itemMapList[i]));
+  Future<List<Item>> getItem() async {
+    var dbClient = await db;
+    List<Map> list = await dbClient!.rawQuery("SELECT * FROM item");
+    List<Item> itemList = [];
+    for (int i = 0; i < list.length; i++) {
+      var item = Item(
+        list[i]['kode_barang'],
+        list[i]['name'],
+        list[i]['price'],
+        list[i]['stok'],
+      );
+      item.setItemId(list[i]['id']);
+      itemList.add(item);
     }
     return itemList;
   }
 
-  factory DbHelper() {
-    // ignore: prefer_conditional_assignment, unnecessary_null_comparison
-    if (_dbHelper == null) {
-      _dbHelper = DbHelper._createObject();
-    }
-    return _dbHelper;
+  Future<bool> updateItem(Item item) async {
+    var dbClient = await db;
+    int res = await dbClient!.update(
+      'item',
+      item.toMap(),
+      where: 'id=?',
+      whereArgs: <int>[item.id],
+    );
+    return res > 0 ? true : false;
   }
-  Future<Database> get database async {
-    // ignore: prefer_conditional_assignment, unnecessary_null_comparison
-    if (_database == null) {
-      _database = await initDb();
-    }
-    return _database;
+
+  Future<int> deleteItem(Item item) async {
+    var dbClient = await db;
+    int res = await dbClient!.rawDelete(
+      'DELETE FROM item WHERE id= ?',
+      [item.id],
+    );
+    return res;
   }
 }
